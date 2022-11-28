@@ -10,14 +10,29 @@ def add(request):
     context ={'form':form}
     return render(request,'add.html',context)
 
-def update(request):
-    return render(request,'update.html')
+def update(request,id):
+    st= Student.objects.get(S_id = id)
 
-def delete(request):
-    return render(request,'delete.html')
+    return render(request,'update.html',{'data':st})
+def updaterecord(request,id):
+    stu = Student.objects.get(S_id=id)
+    stu.name = request.POST['name']
+    stu.Branch = request.POST['Branch']
+    stu.Year = request.POST['Year']
+    stu.save()
 
-def search(request):
-    return render(request,'Search.html')
+    return render(request,'addsuccess.html')
+
+def data(request):
+    d = Student.objects.all().values()
+    x ={ 'data':d}
+    print(d)
+    return render(request,'data.html',x)
+
+def delete(request,id):
+    obj= Student.objects.get(S_id=id)
+    obj.delete()
+    return render(request,'addsuccess.html')
 
 def addsuccess(request):
     if request.method == 'POST':
