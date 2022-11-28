@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %} Add Student Details {% endblock %}
+
+{% block content %} <h1>Hi Fellow!</h1>
+    <p> Please fill below form to create a new entry </p>
+
+<form action="/addsuccess/" method="post">
+<div class="form-row">
+    <!-- >
+    {% csrf_token %}
+    <div class="form-group row">
+
+    <label for="S_id" class="col-sm-8 col-form-label">Student ID</label>
+      <input type="number"  class="form-control" id="S_id" >
+  </div>
+  <div class="form-group row">
+    <label for="s_name" class="col-sm-2 col-form-label">Student Name</label>
+      <input type="text" class="form-control" id="s_name">
+    </div>
+    <div class="form-group row">
+        <label for="branch" class="col-sm-2 col-form-label">Student Branch</label>
+            <input type="text" class="form-control" id="branch">
+    </div>
+    <div class="form-group row">
+        <label for="year" class="col-sm-2 col-form-label">Student Year</label>
+            <input type="number" class="form-control" id="year">
+    </div>
+  <div class="form-group row">
+
+       <button type="submit" class="btn btn-primary mb-2">Add Student</button>
+
+  </div>
+  <-->
+</div>
+    {% csrf_token %}
+    {{form.as_p}}
+       <button type="submit" class="btn btn-primary mb-2">Add Student</button>
+
+</form>
+
+
+
+{% endblock %}
