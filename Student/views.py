@@ -1,8 +1,12 @@
 from django.shortcuts import render
 from .models import Student
 from .forms import StudentForm
-
 def home(request):
+
+    d = Student.objects.all().values()
+    x ={ 'data':d}
+    return render(request,'home.html',x)
+
     return render(request,'home.html')
 
 def add(request):
@@ -26,7 +30,7 @@ def updaterecord(request,id):
 def data(request):
     d = Student.objects.all().values()
     x ={ 'data':d}
-    print(d)
+    #print(d)
     return render(request,'data.html',x)
 
 def delete(request,id):
@@ -38,6 +42,6 @@ def addsuccess(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
         if form.is_valid():
-            s = Student(S_id = form.cleaned_data['S_id'],name= form.cleaned_data['name'], Branch= form.cleaned_data['Branch'],Year=form.cleaned_data['Year'])
+            s = Student(name= form.cleaned_data['name'], Branch= form.cleaned_data['Branch'],Year=form.cleaned_data['Year'])
             s.save()
     return render(request,'addsuccess.html')

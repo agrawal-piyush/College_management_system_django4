@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} Delete Student Details {% endblock %}
+{% block title %}Student Details {% endblock %}
 
 {% block content %} <h1>Hi Fellow!</h1>
     <p> Please find below list of students </p>
@@ -18,7 +18,7 @@
     </tr>
   </thead>
   <tbody>
-  {% for y in data %}
+  {% for y in data reversed %}
 
     <tr>
       <th scope="row">{{ y.S_id }} </th>
