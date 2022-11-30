@@ -1,0 +1,268 @@
+We have started with creating Django project via below command
+#django-admin startproject College_student
+
+After starting the project
+
+We have created one App as below
+#django-admin startapp Student
+
+now in College_student/urls.py
+
+from django.urls import path, include
+
+urlpatterns = [
+    #path('admin/', admin.site.urls),
+    path('',include('Student.urls'))
+]
+
+now in Student/urls.py
+
+from django.urls import  path
+from . import  views
+
+urlpatterns=[
+    path('', views.home, name='home'),
+    path('add/', views.add, name='add'),
+    path('delete/<int:id>', views.delete, name='delete'),
+    path('update/<int:id>', views.update, name='update'),
+    path('admin/', views.data, name='admin'),
+    path('addsuccess/', views.addsuccess, name='addsuccess'),
+    path('updaterecord/<int:id>', views.updaterecord, name='updaterecord'),
+
+]
+
+we have passed <int:id> to make view to get idea for which object in database the operation needed to be performed
+
+now before creating views , lets create model so in Student/models.py
+from django.db import models
+
+class Student(models.Model):
+    S_id = models.AutoField(primary_key = True)
+    name = models.CharField(max_length=30)
+    Branch = models.CharField(max_length=30)
+    Year = models.IntegerField()
+after successfull creating models lets register them so in Student/admin.py
+
+from django.contrib import admin
+from . models import Student
+admin.register(Student)
+
+now we have to register our app functionality in settings.py
+
+hence change as below
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'Student.apps.StudentConfig'-> we have updated here, the StudentConfig is the class in apps.py
+]
+
+We want to use mysql hence changing database from sqlite to mysql
+
+DATABASES = {
+
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'college1',
+        'USER':'root',
+        'PASSWORD':'admin@123',
+        'HOST':'127.0.0.1',
+        'PORT':'3306',
+    }
+we have created the database table but how we can add data?
+run python manage.py makemigrations and python manage.py migrate
+
+for this we need form
+so lets create forms.py
+
+from django.forms import ModelForm
+from .models import Student
+
+class StudentForm(ModelForm):
+    class Meta:
+        model = Student
+        fields='__all__'
+
+now lets check over Student/views.py
+
+#importing libraries
+
+from django.shortcuts import render
+from .models import Student
+from .forms import StudentForm
+
+#we need to create the home page consisting for all data
+
+---Home Page----------------
+
+def home(request):
+    # d will get all the rows of database
+    d = Student.objects.all().values()
+    #passing d as dictionary so that we can render it
+    x ={ 'data':d}
+    #rendering x here
+    return render(request,'home.html',x)
+home.html
+{% extends 'base.html' %} # we have inherited one basic design file
+
+{% block title %} Home {% endblock %}
+
+{% block content %} <h1>Dashboard!</h1>
+    <p> This is a Student Utility tools</p>
+<table class="table table-striped table-dark" border="2">
+  <thead>
+    <tr>
+      <th scope="col">Student Id</th>
+      <th scope="col">Student Name</th>
+      <th scope="col">Branch</th>
+      <th scope="col">Year</th>
+
+    </tr>
+  </thead>
+  <tbody>
+  #using jinja language and putted loop inside the data key of dictionary x passed in views
+  {% for y in data %}
+
+    <tr>
+      <th scope="row">{{ y.S_id }} </th>
+      <td>{{ y.name }}</td>
+      <td>{{ y.Branch }}</td>
+      <td>{{ y.Year }}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+    {% endblock %}
+
+
+----------add student-------
+
+def add(request):
+    #making form object which is build according to model
+    form = StudentForm()
+    #passing form in dictionary
+    context ={'form':form}
+    #rendering the form
+    return render(request,'add.html',context)
+add.html
+
+</div>
+    {% csrf_token %}
+    {{form.as_table}} #it will make a form same as passed
+       <button type="submit" class="btn btn-primary mb-2">Add Student</button>
+
+</form>
+
+def addsuccess(request):
+    #checking request is post
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            s = Student(name= form.cleaned_data['name'], Branch= form.cleaned_data['Branch'],Year=form.cleaned_data['Year'])
+            #saving the data in database
+            s.save()
+    return render(request,'addsuccess.html')
+--------------------update -------------------------
+def update(request,id):
+    #finding the student oject according to id selected
+    st= Student.objects.get(S_id = id)
+    #rendering the update.html to get updated entry from user passing value of all fields according to the id
+    return render(request,'update.html',{'data':st})
+
+update.html
+
+{% extends 'base.html' %}
+
+{% block title %} Update Student Details {% endblock %}
+
+{% block content %} <h1>Hi Fellow!</h1>
+<form action="/updaterecord/{{ data.S_id }}" method="post"> #the form will carry updated data along with unique key
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="name">Name</label>
+    <input type="text" class="form-control" id="name" name="name" value={{ data.name }}>
+  </div>
+  <div class="form-group">
+    <label for="Branch">Branch</label>
+    <input type="text" class="form-control" id="Branch"  name="Branch" value={{ data.Branch }}>
+  </div>
+
+  <div class="form-group">
+    <label for="Year">Year</label>
+    <input type="text" class="form-control" id="Year" name="Year" value={{ data.Year }}>
+  </div>
+    <button type="submit" class="btn btn-primary" >Submit</button>
+</form>    {% endblock %}
+
+--------------------updating record------------------
+def updaterecord(request,id):
+    #finding the object according to id
+    stu = Student.objects.get(S_id=id)
+    #overwriting/updating data
+    stu.name = request.POST['name']
+    stu.Branch = request.POST['Branch']
+    stu.Year = request.POST['Year']
+    #saving the changes in database
+    stu.save()
+
+    return render(request,'addsuccess.html')
+
+----------------------- displaying all data  for admin-----
+def data(request):
+    #fetching all values of objects
+    d = Student.objects.all().values()
+    #passing to a dictionaryy
+    x ={ 'data':d}
+    #print(d)
+    #rendering to html
+    return render(request,'data.html',x)
+
+{% extends 'base.html' %}
+
+{% block title %}Student Details {% endblock %}
+
+{% block content %} <h1>Hi Fellow!</h1>
+    <p> Please find below list of students </p>
+
+<table class="table table-striped table-dark" border="2">
+  <thead>
+    <tr>
+      <th scope="col">Student Id</th>
+      <th scope="col">Student Name</th>
+      <th scope="col">Branch</th>
+      <th scope="col">Year</th>
+      <th scope="col" colspan="2">Action</th>
+
+
+    </tr>
+  </thead>
+  <tbody>
+  {% for y in data reversed %}
+
+    <tr>
+      <th scope="row">{{ y.S_id }} </th>
+      <td>{{ y.name }}</td>
+      <td>{{ y.Branch }}</td>
+      <td>{{ y.Year }}</td>
+        <td><a href="/delete/{{ y.S_id }}"> Delete</a> </td> #creating link for delete
+        <td><a href="/update/{{ y.S_id }}"> Update</a> </td>#creating link fot update
+
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+    {% endblock %}
+------------------------delete request-------------
+
+def delete(request,id):
+    #fetching the object according to id
+    obj= Student.objects.get(S_id=id)
+    #deleting
+    obj.delete()
+    return render(request,'addsuccess.html')
+

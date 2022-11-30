@@ -7,7 +7,6 @@ def home(request):
     x ={ 'data':d}
     return render(request,'home.html',x)
 
-    return render(request,'home.html')
 
 def add(request):
     form = StudentForm()
