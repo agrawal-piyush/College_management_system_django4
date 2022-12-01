@@ -9,7 +9,11 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def home(request):
 
-    d = Student.objects.all().values()
+    if request.user.username == "admin":
+        print(request.user)
+        d = Student.objects.all().values
+    else:
+        d = Student.objects.filter(user = request.user)
     x ={ 'data':d}
     return render(request,'home.html',x)
 
@@ -34,7 +38,8 @@ def updaterecord(request,id):
 
 @login_required
 def data(request):
-    d = Student.objects.all().values()
+    d = Student.objects.all().values
+    print(request.user)
     x ={ 'data':d}
     #print(d)
     return render(request,'data.html',x)
@@ -48,7 +53,7 @@ def addsuccess(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
         if form.is_valid():
-            s = Student(name= form.cleaned_data['name'], Branch= form.cleaned_data['Branch'],Year=form.cleaned_data['Year'])
+            s = Student(name= form.cleaned_data['name'], Branch= form.cleaned_data['Branch'],Year=form.cleaned_data['Year'],user = request.user)
             s.save()
     return render(request,'addsuccess.html')
 

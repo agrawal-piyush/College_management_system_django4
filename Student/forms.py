@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        #fields= ('S_id','name','Branch','Year')
-        fields='__all__'
+        fields= ('name','Branch','Year')
+        #fields='__all__'
 
 class LoginForm(forms.Form):
     username= forms.CharField(max_length=30)

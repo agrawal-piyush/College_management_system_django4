@@ -4,5 +4,6 @@ class Student(models.Model):
     name = models.CharField(max_length=30)
     Branch = models.CharField(max_length=30)
     Year = models.IntegerField()
+    user = models.CharField(max_length=30)
 
 
